@@ -53,7 +53,7 @@ class Main{
 }
 
 // Import and start watchers
-const sources = [require("./nvidia-fr")];
+const sources = [require("./nvidia-fr"), require("./smi-distri")];
 const main = new Main(sources, client);
 main.startWatching();
 
