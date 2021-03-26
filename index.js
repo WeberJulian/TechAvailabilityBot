@@ -11,6 +11,7 @@ class Main{
         this.sources = sources;
         this.client = client;
         this.channel = null;
+        this.start_time = Date.now();
         for (let i = 0; i < this.sources.length; i++){
             this.state[this.sources[i].getName()] = {};
         }
@@ -27,7 +28,7 @@ class Main{
         if (!util.isDeepStrictEqual(this.state[source][id], tmp)){
             this.state[source][id] = tmp;
             console.log(`${source}: La carte ${card} est passé au status ${status} au prix de ${price}.\nLien: ${link}`);
-            if(this.channel){
+            if(this.channel && Date.now() - this.start_time > 10000){
                 this.channel.send(`${source}: La carte ${card} est passé au status ${status} au prix de ${price}.\nLien: ${link}`);
             }
         }
@@ -40,20 +41,21 @@ class Main{
     }
 
     getState(){
-        let message = [];
+        let messages = [];
         for (const [sourceName, source] of Object.entries(this.state)) {
-            message.push(`Pour le site ${sourceName}:`);
+            let message = [`Pour le site ${sourceName}:`];
             for (const [card, status] of Object.entries(source)) {
                 message.push(`• ${status.card} -> ${status.status} | ${status.price}`);
             }
+            messages.push(message);
         }
-        return message;
+        return messages;
     }
 
 }
 
 // Import and start watchers
-const sources = [require("./nvidia-fr"), require("./smi-distri")];
+const sources = [require("./src/nvidia-fr"), require("./src/smi-distri"), require("./src/top-achat")];
 const main = new Main(sources, client);
 main.startWatching();
 
@@ -62,6 +64,5 @@ main.client.on("message", (message) => {
     if (message.author.bot) return;
     if (!message.content.startsWith('!status')) return;
     console.log(main.getState());
-    message.reply(main.getState());
+    main.getState().forEach((element) => message.reply(element.slice(0, 15)));
 })
-
