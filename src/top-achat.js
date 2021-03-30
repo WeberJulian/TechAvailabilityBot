@@ -43,7 +43,7 @@ module.exports = {
         const id = card + source;
         updateState(source, id, card, status, price, prefix + link);
       });
-      await new Promise((resolve) => setTimeout(resolve, 20000));
+      await new Promise((resolve) => setTimeout(resolve, 1000*60*20)); // Check every 20 minutes
     }
   },
 };
